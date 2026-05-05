@@ -1,10 +1,10 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI, status
+from app.routes.recommendationsRoute import recommendations_router
 
 app = FastAPI()
-router = APIRouter()
 
-@router.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/", status_code=status.HTTP_200_OK)
+def api_check():
+    return {"message": "Sanity check OK"}
 
-app.include_router(router)
+app.include_router(recommendations_router)

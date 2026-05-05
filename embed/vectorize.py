@@ -43,12 +43,12 @@ def db_init():
 	register_vector(conn)
 	return conn, cursor
 
-def load_data(csv_path):
+def load_data(csv_path: str) -> pd.DataFrame:
 	print("Loading Dataset...")
 	df = pd.read_csv(csv_path)
 	return df
 
-def create_description(row):
+def create_description(row: pd.Series) -> str:
 	"""
 	Converts dataframe row into a text paragraph for the embedding model.
 	"""
@@ -59,7 +59,7 @@ def create_description(row):
 	rating = row.get('Rating')
 
 	desc = f"Perfume '{perfume}' by brand '{brand}' is a {gender} fragrance"
-	if decade and decade != 'Unknown':
+	if decade != 'Unknown':
 		desc += f" from the {decade}"
 	
 	if pd.notna(rating):
@@ -90,10 +90,9 @@ def create_description(row):
 			
 	if accords:
 		 desc += f" Its main olfactory accords are {', '.join(accords)}."
-		 
 	return desc
 
-def get_embeddings(texts, model="gemini-embedding-001"):
+def get_embeddings(texts: list[str], model: str = "gemini-embedding-001"):
 	"""
 	Calls the gemini-embedding-001 model to vectorize text.
 	"""
@@ -117,7 +116,7 @@ def get_embeddings(texts, model="gemini-embedding-001"):
 			else:
 				raise
 
-def batch_vectorize(df, batch_size=100):
+def batch_vectorize(df: pd.DataFrame, batch_size: int = 100):
 	conn, cursor = db_init()
 	for i in tqdm(range(0, len(df), batch_size)):
 		batch_df = df.iloc[i:i+batch_size]
