@@ -1,7 +1,7 @@
 from app.models.fragrance import Fragrance, Gender
 from app.models.recommend.userPrompt import UserPrompt
 from app.services.recommend.embed import get_embedding
-from app.services.dbConnect import db_connect
+from app.services.dbConnect import get_db_cursor
 
 def build_query(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 	query = """
@@ -47,11 +47,9 @@ def knn(user_prompt: UserPrompt) -> list[Fragrance]:
 	query_embedding = get_embedding(user_prompt)
 	query, params = build_query(user_prompt)
 
-	conn, cursor = db_connect()
-	cursor.execute(query, params + [str(query_embedding), user_prompt.num_recommendations])
-	results = cursor.fetchall()
-	cursor.close()
-	conn.close()
+	with get_db_cursor() as (conn, cursor):
+		cursor.execute(query, params + [str(query_embedding), user_prompt.num_recommendations])
+		results = cursor.fetchall()
 
 	return [
 		Fragrance(
