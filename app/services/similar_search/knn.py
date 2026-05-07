@@ -1,20 +1,22 @@
 from app.models.fragrance import Fragrance
 from app.services.dbConnect import get_db_cursor
 
-def search(input_text: str, limit: int) -> list[Fragrance]:
+def knn(fragrance_id: int, limit: int) -> list[Fragrance]:
 	"""
-	Performs trigram fuzzy search and returns top results.
+	Performs k-nearest neighbors search with pgvector
+	given a specific fragrance id.
 	"""
+
 	query = """
 	SELECT id, url, name, brand, gender, rating, decade, description
 	FROM perfume_vectors
-	WHERE similarity(coalesce(brand, '') || ' ' || coalesce(name, ''), %s) > 0.15
-	ORDER BY (coalesce(brand, '') || ' ' || coalesce(name, '')) <-> %s
+	WHERE id != %s
+	ORDER BY embedding <=> (SELECT embedding FROM perfume_vectors WHERE id = %s)
 	LIMIT %s;
 	"""
 
 	with get_db_cursor() as (conn, cursor):
-		cursor.execute(query, [input_text, input_text, limit])
+		cursor.execute(query, [fragrance_id, fragrance_id, limit])
 		results = cursor.fetchall()
 
 	return [

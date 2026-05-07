@@ -5,7 +5,7 @@ from app.services.dbConnect import get_db_cursor
 
 def build_query(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 	query = """
-	SELECT url, name, brand, gender, rating, decade, description
+	SELECT id, url, name, brand, gender, rating, decade, description
 	FROM perfume_vectors
 	"""
 	where_clauses = []
@@ -42,7 +42,8 @@ def build_query(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 
 def knn(user_prompt: UserPrompt) -> list[Fragrance]:
 	"""
-	Performs k-nearest neighbors search with pgvector.
+	Performs k-nearest neighbors search with pgvector
+	given user preferences.
 	"""
 	query_embedding = get_embedding(user_prompt)
 	query, params = build_query(user_prompt)
@@ -53,12 +54,13 @@ def knn(user_prompt: UserPrompt) -> list[Fragrance]:
 
 	return [
 		Fragrance(
-			url=row[0], 
-			name=row[1], 
-			brand=row[2], 
-			gender=row[3], 
-            rating=row[4], 
-            decade=row[5],
-            description=row[6]
+			id=row[0], 
+			url=row[1], 
+			name=row[2], 
+			brand=row[3], 
+			gender=row[4], 
+            rating=row[5], 
+            decade=row[6],
+            description=row[7]
         ) for row in results
     ]
