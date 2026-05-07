@@ -140,8 +140,8 @@ def batch_vectorize(df: pd.DataFrame, batch_size: int = 100):
 			decade = int(decade_val) if pd.notna(decade_val) else None
 			values_to_insert.append((
 				str(row.get("url", "")),
-				str(row.get("Perfume", "")),
-				str(row.get("Brand", "")),
+				str(row.get("Perfume", "Unknown")),
+				str(row.get("Brand", "Unknown")),
 				str(row.get("Gender", "unisex")),
 				rating,
 				decade,
