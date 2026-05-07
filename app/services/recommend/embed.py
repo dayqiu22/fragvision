@@ -5,12 +5,12 @@ from google import genai
 from google.genai import types
 from app.models.recommend.userPrompt import UserPrompt
 
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 def create_prompt_text(user_prompt: UserPrompt) -> str:
-	brand = user_prompt.brand or " "
+	brand = user_prompt.brand.title() or " "
 	gender = user_prompt.gender
 	lower_decade = user_prompt.lower_decade
 	upper_decade = user_prompt.upper_decade
@@ -21,7 +21,7 @@ def create_prompt_text(user_prompt: UserPrompt) -> str:
 		if lower_decade != upper_decade:
 			text += f" between the {lower_decade} and the {upper_decade}"
 		else:
-			text += f" from the {lower_decade}"
+			text += f" in the {lower_decade}"
 	
 	if rating:
 		text += f" with a rating of {float(rating)}"

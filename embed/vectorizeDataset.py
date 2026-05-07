@@ -8,7 +8,7 @@ from google.genai import types
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -58,9 +58,9 @@ def create_description(row: pd.Series) -> str:
 	decade = str(row['Decade']) if pd.notna(row.get('Decade')) else "Unknown"
 	rating = row.get('Rating')
 
-	desc = f"Perfume '{perfume}' by brand '{brand}' is a {gender} fragrance"
+	desc = f"Perfume '{perfume}' by brand '{brand}' is a {gender} fragrance released"
 	if decade != 'Unknown':
-		desc += f" from the {decade}"
+		desc += f" in the {decade}"
 	
 	if pd.notna(rating):
 		try:

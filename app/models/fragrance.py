@@ -2,8 +2,8 @@ from enum import StrEnum
 from pydantic import BaseModel
 
 class Gender(StrEnum):
-    MEN = "men"
-    WOMEN = "women"
+    MALE = "male"
+    FEMALE = "female"
     UNISEX = "unisex"
 
 class Fragrance(BaseModel):

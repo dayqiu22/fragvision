@@ -5,7 +5,7 @@ from app.models.fragrance import Fragrance, Gender
 from app.models.recommend.userPrompt import UserPrompt
 from app.services.recommend.embed import get_embedding
 
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def db_connect():
@@ -15,7 +15,7 @@ def db_connect():
 	cursor = conn.cursor()
 	return conn, cursor
 
-def build_where(user_prompt: UserPrompt) -> tuple[str, list[str]]:
+def build_query(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 	query = """
 	SELECT url, name, brand, gender, rating, decade, description
 	FROM perfume_vectors
@@ -24,7 +24,7 @@ def build_where(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 	params = []
 	if user_prompt.brand:
 		where_clauses.append("brand = %s")
-		params.append(user_prompt.brand)
+		params.append(user_prompt.brand.title())
 
 	if user_prompt.gender == Gender.UNISEX:
 		where_clauses.append("gender = %s")
@@ -57,7 +57,7 @@ def knn(user_prompt: UserPrompt) -> list[Fragrance]:
 	Performs k-nearest neighbors search with pgvector.
 	"""
 	query_embedding = get_embedding(user_prompt)
-	query, params = build_where(user_prompt)
+	query, params = build_query(user_prompt)
 
 	conn, cursor = db_connect()
 	cursor.execute(query, params + [str(query_embedding), user_prompt.num_recommendations])
