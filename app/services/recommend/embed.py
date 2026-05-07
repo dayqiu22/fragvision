@@ -19,12 +19,12 @@ def create_prompt_text(user_prompt: UserPrompt) -> str:
 	text = f"Perfume ' ' by brand '{brand}' is a {gender} fragrance released"
 	if lower_decade and upper_decade:
 		if lower_decade != upper_decade:
-			text += f" between the {lower_decade} and the {upper_decade}"
+			text += f" between the {lower_decade}s and the {upper_decade}s"
 		else:
-			text += f" in the {lower_decade}"
+			text += f" in the {lower_decade}s"
 	
 	if rating:
-		text += f" with a rating of {float(rating)}"
+		text += f" with a rating of {rating}"
 	text += "."
 		
 	top = user_prompt.top_notes

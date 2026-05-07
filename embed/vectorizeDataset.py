@@ -33,7 +33,7 @@ def db_init():
 		brand TEXT,
 		gender TEXT,
 		rating FLOAT,
-		decade TEXT,
+		decade INT4,
 		description TEXT,
 		embedding vector(3072)
 	);
@@ -55,13 +55,16 @@ def create_description(row: pd.Series) -> str:
 	perfume = str(row['Perfume']) if pd.notna(row.get('Perfume')) else "Unknown"
 	brand = str(row['Brand']) if pd.notna(row.get('Brand')) else "Unknown"
 	gender = str(row['Gender']) if pd.notna(row.get('Gender')) else "unisex"
-	decade = str(row['Decade']) if pd.notna(row.get('Decade')) else "Unknown"
+	decade = row.get('Decade')
 	rating = row.get('Rating')
 
 	desc = f"Perfume '{perfume}' by brand '{brand}' is a {gender} fragrance released"
-	if decade != 'Unknown':
-		desc += f" in the {decade}"
-	
+	if pd.notna(decade):
+		try:
+			desc += f" in the {int(decade)}s"
+		except ValueError:
+			pass
+		
 	if pd.notna(rating):
 		try:
 			desc += f" with a rating of {float(rating)}."
@@ -133,13 +136,15 @@ def batch_vectorize(df: pd.DataFrame, batch_size: int = 100):
 		for idx, (_, row) in enumerate(batch_df.iterrows()):
 			rating_val = row.get("Rating")
 			rating = float(rating_val) if pd.notna(rating_val) else None
+			decade_val = row.get("Decade")
+			decade = int(decade_val) if pd.notna(decade_val) else None
 			values_to_insert.append((
 				str(row.get("url", "")),
 				str(row.get("Perfume", "")),
 				str(row.get("Brand", "")),
 				str(row.get("Gender", "unisex")),
 				rating,
-				str(row.get("Decade", "")),
+				decade,
 				descriptions[idx],
 				embeddings[idx] # The 3072-dimensional vector
 			))

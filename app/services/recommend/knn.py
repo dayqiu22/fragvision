@@ -1,19 +1,7 @@
-import psycopg2
-import os
-from dotenv import load_dotenv
 from app.models.fragrance import Fragrance, Gender
 from app.models.recommend.userPrompt import UserPrompt
 from app.services.recommend.embed import get_embedding
-
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-def db_connect():
-	if not DATABASE_URL:
-		raise ValueError("Missing DATABASE_URL in .env file")
-	conn = psycopg2.connect(DATABASE_URL)
-	cursor = conn.cursor()
-	return conn, cursor
+from app.services.dbConnect import db_connect
 
 def build_query(user_prompt: UserPrompt) -> tuple[str, list[str]]:
 	query = """

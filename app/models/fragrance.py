@@ -12,5 +12,5 @@ class Fragrance(BaseModel):
 	brand: str
 	gender: Gender
 	rating: float
-	decade: str
+	decade: int
 	description: str
