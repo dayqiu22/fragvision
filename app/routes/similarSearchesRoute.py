@@ -7,7 +7,7 @@ similar_searches_router = APIRouter()
 
 @similar_searches_router.get("/searches", status_code=status.HTTP_200_OK, response_model=SearchResults)
 def get_searches(input_text: str, limit: int = 8) -> SearchResults:
-	return SearchResults(perfumes=search(input_text, limit))
+	return SearchResults(fragrances=search(input_text, limit))
 
 @similar_searches_router.get(
 	"/searches/{fragrance_id}", 
@@ -15,4 +15,4 @@ def get_searches(input_text: str, limit: int = 8) -> SearchResults:
 	response_model=SearchResults
 )
 def get_similars(fragrance_id: int, limit: int = 8) -> SearchResults:
-	return SearchResults(perfumes=knn(fragrance_id, limit))
+	return SearchResults(fragrances=knn(fragrance_id, limit))
