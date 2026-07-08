@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router";
 import Nav from "./components/Nav";
 import Home from "./routes/Home";
 import Fragrance from "./routes/Fragrance";
-import './App.css'
 
 function App() {
 
