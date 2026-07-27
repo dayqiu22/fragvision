@@ -1,5 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Button, Box, Modal, TextField, IconButton, InputAdornment } from '@mui/material';
+import { useState, useEffect, useRef } from 'react';
+import {
+	Button,
+	Box,
+	Modal,
+	TextField,
+	IconButton,
+	InputAdornment,
+	Typography
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router';
 import ClearIcon from '@mui/icons-material/Clear';
 import { SEARCHES_API_ENDPOINT } from '../constants';
 
@@ -17,9 +26,9 @@ const searchButtonStyle = {
 	textTransform: 'none',
 	fontSize: '0.875rem',
 	border: '1px solid',
-	borderColor: 'rgba(255, 255, 255, 0.23)', // default MUI outlined input border
+	borderColor: 'rgba(255, 255, 255, 0.23)',
 	borderRadius: '50px',
-	padding: '7.5px 14px', // matching size="small" input padding
+	padding: '7.5px 14px',
 	'&:hover': {
 		borderColor: 'text.primary',
 		backgroundColor: 'transparent',
@@ -28,15 +37,14 @@ const searchButtonStyle = {
 
 const modalContentStyle = {
 	display: 'flex',
-	alignItems: 'flex-start',
-	gap: '16px',
+	flexDirection: 'column',
 	position: 'absolute',
 	top: '50%',
 	left: '50%',
 	transform: 'translate(-50%, -50%)',
 	width: 1000,
 	maxWidth: '90vw',
-	height: 500,
+	height: 550,
 	maxHeight: '90vh',
 	bgcolor: 'background.paper',
 	border: '2px solid #000',
@@ -44,27 +52,88 @@ const modalContentStyle = {
 	p: 4,
 };
 
+const searchInputRowStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: '16px',
+	width: '100%',
+};
+
+const searchResultsStyle = {
+	display: 'flex',
+	flexDirection: 'column',
+	gap: '8px',
+	mt: 2,
+	flexGrow: 1,
+	overflowY: 'auto',
+};
+
+const searchResultItemStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: '12px',
+	padding: '8px 12px',
+	borderRadius: '4px',
+	backgroundColor: 'rgba(255, 255, 255, 0.05)',
+	textDecoration: 'none',
+	color: '#fff',
+	'&:hover': {
+		backgroundColor: 'rgba(255, 255, 255, 0.12)',
+		cursor: 'pointer',
+		textDecoration: 'none',
+	},
+};
+
+interface SearchResult {
+	id: number;
+	url: string;
+	name: string;
+	brand: string;
+	gender: string;
+	rating: number | null;
+	decade: number | null;
+	description: string;
+}
+
 const SearchModal = () => {
-	const [open, setOpen] = useState(false);
-	const handleOpen = () => setOpen(true);
-	const handleClose = () => setOpen(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(event.target.value);
-		console.log(event.target.value);
 	}
+	const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 	const handleClear = () => {
 		setSearchQuery('');
+		setSearchResults([]);
 	}
+	const [open, setOpen] = useState(false);
+	const handleOpen = () => setOpen(true);
+	const handleClose = () => {
+		setOpen(false);
+		handleClear();
+	};
+	const maxResults = 8;
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
-		if (!searchQuery.trim()) return;
+		if (open) {
+			const timer = setTimeout(() => {
+				inputRef.current?.focus();
+			}, 50);
+			return () => clearTimeout(timer);
+		}
+	}, [open]);
+
+	useEffect(() => {
+		if (!searchQuery.trim()) {
+			setSearchResults([]);
+			return;
+		}
 
 		const delayDebounceFn = setTimeout(() => {
 			fetch(`${SEARCHES_API_ENDPOINT}?input_text=${encodeURIComponent(searchQuery)}`)
 				.then(res => res.json())
 				.then(data => {
-					console.log('Search results:', data);
+					setSearchResults(data.fragrances);
 				})
 				.catch(err => console.error('Error fetching search results:', err));
 		}, 400);
@@ -88,38 +157,63 @@ const SearchModal = () => {
 				aria-describedby="modal-modal-description"
 			>
 				<Box sx={modalContentStyle}>
-					<TextField
-						autoFocus
-						fullWidth
-						size="small"
-						placeholder="Search fragrances by brand and name..."
-						variant="outlined"
-						value={searchQuery}
-						onChange={handleSearchChange}
-						sx={{
-							flexGrow: 1,
-							'& .MuiOutlinedInput-root': {
-								borderRadius: '50px',
-							}
-						}}
-						slotProps={{
-							input: {
-								endAdornment: searchQuery ? (
-									<InputAdornment position="end">
-										<IconButton onClick={handleClear} edge="end">
-											<ClearIcon />
-										</IconButton>
-									</InputAdornment>
-								) : null,
-							},
-						}}
-					/>
-					<Button
-						onClick={handleClose}
-						sx={cancelButtonStyle}
-					>
-						Cancel
-					</Button>
+					<Box sx={searchInputRowStyle}>
+						<TextField
+							inputRef={inputRef}
+							fullWidth
+							size="small"
+							placeholder="Search fragrances by brand and name..."
+							variant="outlined"
+							value={searchQuery}
+							onChange={handleSearchChange}
+							autoComplete="off"
+							sx={{
+								flexGrow: 1,
+								'& .MuiOutlinedInput-root': {
+									borderRadius: '50px',
+								}
+							}}
+							slotProps={{
+								input: {
+									endAdornment: searchQuery ? (
+										<InputAdornment position="end">
+											<IconButton onClick={handleClear} edge="end">
+												<ClearIcon />
+											</IconButton>
+										</InputAdornment>
+									) : null,
+								},
+							}}
+						/>
+						<Button
+							onClick={handleClose}
+							sx={cancelButtonStyle}
+						>
+							Cancel
+						</Button>
+					</Box>
+
+					{searchResults.length > 0 && (
+						<Box sx={searchResultsStyle}>
+							{searchResults.slice(0, maxResults).map((result) => (
+								<Box
+									key={result.id}
+									sx={searchResultItemStyle}
+									component={RouterLink}
+									to={`/fragrances/${result.id}`}
+									state={{ fragrance: result }}
+									onClick={handleClose}
+								>
+									<Typography variant="body1" sx={{ fontStyle: 'italic', color: '#fff' }}>
+										{result.brand}
+									</Typography>
+									<Typography variant="body1" sx={{ fontWeight: 700, color: '#fff' }}>
+										{result.name}
+									</Typography>
+								</Box>
+							))}
+						</Box>
+					)}
 				</Box>
 			</Modal>
 		</Box>

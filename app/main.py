@@ -2,6 +2,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.recommendationsRoute import recommendations_router
 from app.routes.similarSearchesRoute import similar_searches_router
+from app.routes.fragrancesRoute import fragrances_router
 
 app = FastAPI()
 
@@ -23,3 +24,4 @@ def api_check():
 
 app.include_router(recommendations_router)
 app.include_router(similar_searches_router)
+app.include_router(fragrances_router)
