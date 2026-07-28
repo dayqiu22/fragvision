@@ -11,6 +11,8 @@ import {
 import { Link as RouterLink } from 'react-router';
 import ClearIcon from '@mui/icons-material/Clear';
 import { SEARCHES_API_ENDPOINT } from '../constants';
+import type { Fragrance } from '../models/fragrance';
+import type { FragranceSearchResults } from '../models/searchResults';
 
 const cancelButtonStyle = {
 	color: 'text.secondary',
@@ -84,23 +86,12 @@ const searchResultItemStyle = {
 	},
 };
 
-interface SearchResult {
-	id: number;
-	url: string;
-	name: string;
-	brand: string;
-	gender: string;
-	rating: number | null;
-	decade: number | null;
-	description: string;
-}
-
 const SearchModal = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(event.target.value);
 	}
-	const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+	const [searchResults, setSearchResults] = useState<Fragrance[]>([]);
 	const handleClear = () => {
 		setSearchQuery('');
 		setSearchResults([]);
@@ -131,7 +122,7 @@ const SearchModal = () => {
 
 		const delayDebounceFn = setTimeout(() => {
 			fetch(`${SEARCHES_API_ENDPOINT}?input_text=${encodeURIComponent(searchQuery)}`)
-				.then(res => res.json())
+				.then(res => res.json() as Promise<FragranceSearchResults>)
 				.then(data => {
 					setSearchResults(data.fragrances);
 				})

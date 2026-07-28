@@ -6,17 +6,19 @@ def knn(fragrance_id: int, limit: int) -> list[Fragrance]:
 	Performs k-nearest neighbors search with pgvector
 	given a specific fragrance id.
 	"""
-
+	embedding_query = "SELECT embedding FROM perfume_vectors WHERE id = %s;"
 	query = """
 	SELECT id, url, name, brand, gender, rating, decade, description
 	FROM perfume_vectors
 	WHERE id != %s
-	ORDER BY embedding <=> (SELECT embedding FROM perfume_vectors WHERE id = %s)
+	ORDER BY embedding <=> (%s)::halfvec(3072)
 	LIMIT %s;
 	"""
 
 	with get_db_cursor() as (conn, cursor):
-		cursor.execute(query, [fragrance_id, fragrance_id, limit])
+		cursor.execute(embedding_query, [fragrance_id])
+		embedding = cursor.fetchone()[0]
+		cursor.execute(query, [fragrance_id, embedding, limit])
 		results = cursor.fetchall()
 
 	return [

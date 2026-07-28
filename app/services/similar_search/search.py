@@ -1,10 +1,11 @@
 from app.models.fragrance import Fragrance
 from app.services.dbConnect import get_db_cursor
 
-def search(input_text: str, limit: int) -> list[Fragrance]:
+def search(input_text: str) -> list[Fragrance]:
 	"""
 	Performs trigram fuzzy search and returns top results.
 	"""
+	limit = 8
 	query = """
 	SELECT id, url, name, brand, gender, rating, decade, description
 	FROM perfume_vectors

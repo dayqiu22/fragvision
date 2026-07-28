@@ -1,15 +1,15 @@
 import { Routes, Route } from "react-router";
 import Nav from "./components/Nav";
-import Home from "./routes/Home";
-import Fragrance from "./routes/Fragrance";
+import HomeRoute from "./routes/HomeRoute";
+import FragranceRoute from "./routes/FragranceRoute";
 
 function App() {
 
   return (
     <Routes>
       <Route element={<Nav />} >
-        <Route path="/" element={<Home />} />
-        <Route path="fragrances/:id" element={<Fragrance />} />
+        <Route path="/" element={<HomeRoute />} />
+        <Route path="fragrances/:id" element={<FragranceRoute />} />
       </Route>
     </Routes>
   )

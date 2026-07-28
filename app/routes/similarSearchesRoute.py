@@ -6,8 +6,8 @@ from app.models.similar_search.searchResults import SearchResults
 similar_searches_router = APIRouter()
 
 @similar_searches_router.get("/searches", status_code=status.HTTP_200_OK, response_model=SearchResults)
-def get_searches(input_text: str, limit: int = 8) -> SearchResults:
-	return SearchResults(fragrances=search(input_text, limit))
+def get_searches(input_text: str) -> SearchResults:
+	return SearchResults(fragrances=search(input_text))
 
 @similar_searches_router.get(
 	"/searches/{fragrance_id}", 
