@@ -10,7 +10,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 def create_prompt_text(user_prompt: UserPrompt) -> str:
-	brand = user_prompt.brand.title() or " "
+	brand = " " if user_prompt.brand is None else user_prompt.brand.title()
 	gender = user_prompt.gender
 	lower_decade = user_prompt.lower_decade
 	upper_decade = user_prompt.upper_decade
